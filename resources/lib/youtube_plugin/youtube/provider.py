@@ -24,6 +24,7 @@ from .helper import v3, ResourceManager, yt_specials, yt_playlist, yt_login, yt_
 from .youtube_exceptions import InvalidGrant, LoginException
 
 import xbmc
+import xbmcgui
 import xbmcaddon
 import xbmcvfs
 
@@ -588,7 +589,7 @@ class Provider(kodion.AbstractProvider):
         if addon_id:
             item_params.update({'addon_id': addon_id})
 
-        if page == 1:
+        if page == 1 and xbmcgui.getCurrentWindowId() != 10000:
             playlists_item = DirectoryItem(context.get_ui().bold(context.localize(self.LOCAL_MAP['youtube.playlists'])),
                                            context.create_uri(['channel', channel_id, 'playlists'], item_params),
                                            image=context.create_resource_path('media', 'playlist.png'))
@@ -660,9 +661,9 @@ class Provider(kodion.AbstractProvider):
 
     path for playlist: '/play/?playlist_id=XXXXXXX&mode=[OPTION]'
     OPTION: [normal(default)|reverse|shuffle]
-    
+
     path for channel live streams: '/play/?channel_id=UCXXXXXXX&live=X
-    OPTION: 
+    OPTION:
         live parameter required, live=1 for first live stream
         live = index of live stream if channel has multiple live streams
     """
