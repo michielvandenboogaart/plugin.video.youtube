@@ -9,6 +9,19 @@
     <extension point="xbmc.python.pluginsource" library="resources/lib/default.py">
         <provides>video</provides>
     </extension>
+
+    <extension point="kodi.context.item" library="go_to_channel.py">
+        <item>
+            <label>Go to channel</label>
+            <visible>!String.IsEqual(ListItem.dbtype,movie)</visible>
+            <visible>!String.IsEqual(ListItem.dbtype,set)</visible>
+            <visible>!String.IsEqual(ListItem.dbtype,tvshow)</visible>
+            <visible>!String.IsEqual(ListItem.dbtype,season)</visible>
+            <visible>!String.IsEqual(ListItem.dbtype,episode)</visible>
+            <visible>!String.IsEqual(ListItem.dbtype,musicvideo)</visible>
+            <visible>String.IsEqual(ListItem.dbtype,video)</visible>
+        </item>
+    </extension>
     <extension point="xbmc.service" library="resources/lib/startup.py" start="login"/>
     <extension point="xbmc.python.module" library="resources/lib/"/>
     <extension point="xbmc.addon.metadata">

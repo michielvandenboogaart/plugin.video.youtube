@@ -367,9 +367,11 @@ def update_video_infos(provider, context, video_id_dict, playlist_item_id_dict=N
 
         # got to [CHANNEL]
         if channel_id and channel_name:
+            # Save the channel_id on the video_item
+            video_item.set_channel_id(channel_id)
+
             # only if we are not directly in the channel provide a jump to the channel
             if kodion.utils.create_path('channel', channel_id) != context.get_path():
-                video_item.set_channel_id(channel_id)
                 yt_context_menu.append_go_to_channel(context_menu, provider, context, channel_id, channel_name)
 
         if provider.is_logged_in():
