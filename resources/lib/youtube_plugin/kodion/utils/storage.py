@@ -17,6 +17,9 @@ import datetime
 import os
 import sqlite3
 import time
+import traceback
+
+from .. import logger
 
 
 class Storage(object):
@@ -131,11 +134,6 @@ class Storage(object):
         else:
             self._open()
             now = datetime.datetime.now() + datetime.timedelta(microseconds=1)  # add 1 microsecond, required for dbapi2
-            if isinstance(now, int) or isinstance(now, float):
-                try:
-                    now = time.strftime('%Y-%m-%d %H:%M:%S.%f', time.localtime(now))
-                except ValueError:  # now has no microseconds
-                    now = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(now))
             query = 'REPLACE INTO %s (key,time,value) VALUES(?,?,?)' % self._table_name
             self._execute(True, query, values=[item_id, now, _encode(item)])
             self._close()
@@ -234,20 +232,21 @@ class Storage(object):
     def get_seconds_diff(self, current_stamp):
         stamp_format = '%Y-%m-%d %H:%M:%S.%f'
         current_datetime = datetime.datetime.now()
-
         if not current_stamp:
             return 86400  # 24 hrs
-        if isinstance(current_stamp, int) or isinstance(current_stamp, float):
-            try:
-                current_stamp = time.strftime('%Y-%m-%d %H:%M:%S.%f', time.localtime(current_stamp))
-            except ValueError:  # current_stamp has no microseconds
-                current_stamp = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(current_stamp))
-
         try:
             stamp_datetime = datetime.datetime(*(self.strptime(current_stamp, stamp_format)[0:6]))
         except ValueError:  # current_stamp has no microseconds
             stamp_format = '%Y-%m-%d %H:%M:%S'
             stamp_datetime = datetime.datetime(*(self.strptime(current_stamp, stamp_format)[0:6]))
+        except TypeError:
+            logger.log_error('Exception while calculating timestamp difference: '
+                             'current_stamp |{cs}|{cst}| stamp_format |{sf}|{sft}| \n{tb}'
+                             .format(cs=current_stamp, cst=type(current_stamp),
+                                     sf=stamp_format, sft=type(stamp_format),
+                                     tb=traceback.print_exc())
+                             )
+            return 604800  # one week
 
         time_delta = current_datetime - stamp_datetime
         total_seconds = 0
